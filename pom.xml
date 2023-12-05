@@ -1,5 +1,4 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
 	<groupId>org.acme</groupId>
@@ -16,11 +15,19 @@
 		<java.version>11</java.version>
 		<!-- spring-boot - main du jar (c.f. https://www.baeldung.com/spring-boot-main-class) -->
 		<start-class>org.acme.graph.Application</start-class>
-		<!-- versions des autres dépendances -->
+		<!--
+		Version de GeoTools à conserver cohérente avec version OpenJDK  
+		https://docs.geotools.org/latest/userguide/build/install/jdk.html
+		-->
 		<geotools.version>26.7</geotools.version>
 		<jacoco.version>0.8.7</jacoco.version>
 		<jackson-datatype-jts.version>1.2.10</jackson-datatype-jts.version>
 		<spring-boot-jar-resources.version>1.3</spring-boot-jar-resources.version>
+		<!-- 
+			version cqengine pour les dernières questions 
+			(https://mvnrepository.com/artifact/com.googlecode.cqengine/cqengine)
+		-->
+		<cqengine.version>3.6.0</cqengine.version>
 	</properties>
 
 	<parent>
@@ -56,6 +63,13 @@
 			<groupId>org.n52.jackson</groupId>
 			<artifactId>jackson-datatype-jts</artifactId>
 			<version>${jackson-datatype-jts.version}</version>
+		</dependency>
+
+		<!-- https://github.com/npgall/cqengine pour multi-index sur collection (visited, cost) -->
+		<dependency>
+			<groupId>com.googlecode.cqengine</groupId>
+			<artifactId>cqengine</artifactId>
+			<version>${cqengine.version}</version>
 		</dependency>
 
 		<dependency>
