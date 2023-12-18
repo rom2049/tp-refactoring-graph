@@ -33,8 +33,13 @@ public class Edge {
 	 */
 	private Vertex target;
 
-	public Edge() {
-
+//	public Edge() {
+//
+//	}
+	
+	public Edge(Vertex source, Vertex target) {
+		this.source = source;
+		this.target = target;
 	}
 
 	public String getId() {
