@@ -11,6 +11,7 @@ import org.acme.graph.model.Edge;
 import org.acme.graph.model.Graph;
 import org.junit.Before;
 import org.junit.Test;
+import org.acme.graph.errors.NotFoundException;
 
 /**
  * Tests fonctionnels sur DijkstraPathFinder
@@ -37,11 +38,9 @@ public class DijkstraRegressTest {
 		assertEquals(1, path.size());
 	}
 
-	@Test
+	@Test(expected = NotFoundException.class)
 	public void testBANotFound() {
 		List<Edge> path = finder.findPath(graph.findVertex("b"), graph.findVertex("a"));
-//		assertEquals("Path not found from '%b' to '%a'", path);
-//		assertNull(path);
 	}
 
 	@Test

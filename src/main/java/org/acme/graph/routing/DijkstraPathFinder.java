@@ -46,6 +46,7 @@ public class DijkstraPathFinder {
 				return buildPath(destination);
 			}
 		}
+		log.info("findPath({},{}) : path not found", origin, destination);
 		throw new NotFoundException(String.format("Path not found from '%s' to '%s'", origin.getId(), destination.getId()));
 	}
 
