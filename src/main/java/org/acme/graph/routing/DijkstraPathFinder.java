@@ -2,15 +2,14 @@ package org.acme.graph.routing;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import org.acme.graph.errors.NotFoundException;
 import org.acme.graph.model.Edge;
 import org.acme.graph.model.Graph;
 import org.acme.graph.model.Path;
 import org.acme.graph.model.PathNode;
+import org.acme.graph.model.PathTree;
 import org.acme.graph.model.Vertex;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -28,15 +27,12 @@ public class DijkstraPathFinder {
 
 	private Graph graph;
 	
-	private Map<Vertex,PathNode> nodes = new HashMap<Vertex,PathNode>();
+	private PathTree pathTree = new PathTree();
 
 	public DijkstraPathFinder(Graph graph) {
 		this.graph = graph;
 	}
 	
-	public PathNode getNode(Vertex vertex) {
-		return this.nodes.get(vertex);
-	}
 
 	/**
 	 * Calcul du plus court chemin entre une origine et une destination
@@ -47,13 +43,13 @@ public class DijkstraPathFinder {
 	 */
 	public Path findPath(Vertex origin, Vertex destination) {
 		log.info("findPath({},{})...", origin, destination);
-		initGraph(origin);
+		this.pathTree = new PathTree(this.graph, origin);
 		Vertex current;
 		while ((current = findNextVertex()) != null) {
 			visit(current);
-			if (getNode(destination).getReachingEdge() != null) {
+			if (this.pathTree.getNode(destination).getReachingEdge() != null) {
 				log.info("findPath({},{}) : path found", origin, destination);
-				return new Path(buildPath(destination));
+				return new Path(this.pathTree.getPath(destination));
 			}
 		}
 		log.info("findPath({},{}) : path not found", origin, destination);
@@ -78,52 +74,18 @@ public class DijkstraPathFinder {
 			 * Convervation de arc permettant d'atteindre le sommet avec un meilleur coût
 			 * sachant que les sommets non atteint ont pour coût "POSITIVE_INFINITY"
 			 */
-			double newCost = getNode(vertex).getCost() + outEdge.getCost();
-			if (newCost < getNode(reachedVertex).getCost()) {
-				getNode(reachedVertex).setCost(newCost);
-				getNode(reachedVertex).setReachingEdge(outEdge);
+			double newCost = this.pathTree.getNode(vertex).getCost() + outEdge.getCost();
+			if (newCost < this.pathTree.getNode(reachedVertex).getCost()) {
+				this.pathTree.getNode(reachedVertex).setCost(newCost);
+				this.pathTree.getNode(reachedVertex).setReachingEdge(outEdge);
 			}
 		}
 		/*
 		 * On marque le sommet comme visité
 		 */
-		getNode(vertex).setVisited(true);
+		this.pathTree.getNode(vertex).setVisited(true);
 	}
 
-	/**
-	 * Construit le chemin en remontant les relations incoming edge
-	 * 
-	 * @param target
-	 * @return
-	 */
-	private List<Edge> buildPath(Vertex target) {
-		List<Edge> result = new ArrayList<>();
-
-		Edge current = getNode(target).getReachingEdge();
-		do {
-			result.add(current);
-			current = getNode(current.getSource()).getReachingEdge();
-		} while (current != null);
-
-		Collections.reverse(result);
-		return result;
-	}
-
-	/**
-	 * Prépare le graphe pour le calcul du plus court chemin
-	 * 
-	 * @param source
-	 */
-	private void initGraph(Vertex source) {
-		log.trace("initGraph({})", source);
-		for (Vertex vertex : graph.getVertices()) {
-			PathNode pathNode = new PathNode();
-			pathNode.setCost(source == vertex ? 0.0 : Double.POSITIVE_INFINITY);
-			pathNode.setReachingEdge(null);
-			pathNode.setVisited(false);
-			this.nodes.put(vertex, pathNode);
-		}
-	}
 
 	/**
 	 * Recherche le prochain sommet à visiter. Dans l'algorithme de Dijkstra, ce
@@ -137,15 +99,15 @@ public class DijkstraPathFinder {
 		Vertex result = null;
 		for (Vertex vertex : graph.getVertices()) {
 			// sommet déjà visité?
-			if (getNode(vertex).isVisited()) {
+			if (this.pathTree.getNode(vertex).isVisited()) {
 				continue;
 			}
 			// sommet non atteint?
-			if (getNode(vertex).getCost() == Double.POSITIVE_INFINITY) {
+			if (this.pathTree.getNode(vertex).getCost() == Double.POSITIVE_INFINITY) {
 				continue;
 			}
 			// sommet le plus proche de la source?
-			if (getNode(vertex).getCost() < minCost) {
+			if (this.pathTree.getNode(vertex).getCost() < minCost) {
 				result = vertex;
 			}
 		}
